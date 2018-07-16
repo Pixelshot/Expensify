@@ -1,16 +1,51 @@
 import { createStore } from 'redux';
 
-const store = createStore((state = { count: 0 }, action) => {
+// Action generators - functions that return action objects.
+
+const incrementCount = ({ incrementBy = 1 } = {}) => ({
+    // incrementBy = 1 : setting up the default value.
+    type: 'INCREMENT',
+    incrementBy
+    // since our variable name is the same as our object property, we can just put it as incrementBy. 
+    // Original code is: 
+    // incrementBy: incrementBy
+    // Sec 10, Lec 90.
+});
+
+const decrementCount = ({ decrementBy = 1 } = {}) => ({
+    type: 'DECREMENT',
+    decrementBy
+});
+
+const setCount = ({ count }) => ({
+    type: 'SET',
+    count
+});
+
+const resetCount = () => ({
+    type: 'RESET',
+});
+
+// Reducers attributes
+// 1. Reducers are pure functions.
+// A pure function is one that does not rely on outside of its function scope.
+// Example of a non pure function: 
+// let result;
+// const add = (a, b) => {
+// result = a + b
+// };
+// Reason being, the output relies on a global scope(result) in order to return it's output.
+// 2. Never change state or action. Return it on a new object instead.
+
+const countReducer = (state = { count: 0 }, action) => {
     switch (action.type) {
         case 'INCREMENT':
-            const incrementBy = typeof action.incrementBy === 'number' ? action.incrementBy : 1;
             return {
-                count: state.count + incrementBy
+                count: state.count + action.incrementBy
             };
         case 'DECREMENT':
-            const decrementBy = typeof action.decrementBy === 'number' ? action.decrementBy : 1;
             return {
-                count: state.count - decrementBy
+                count: state.count - action.decrementBy
             };
         case 'SET':
             return {
@@ -23,7 +58,9 @@ const store = createStore((state = { count: 0 }, action) => {
         default: 
             return state;
     };
-});
+}
+
+const store = createStore(countReducer);
 
 // store.subscribe(() => {
 //     console.log(store.getState());
@@ -40,37 +77,20 @@ const unsubscribe = store.subscribe(() => {
 // Example: Under a store called Person, an action would be walk, stop walking, drive, exercise, etc..
 
 // Increment the count
-store.dispatch({
-    type: 'INCREMENT', // use "_" to separate between words. ie: INCREMENT_AFTER_THIS.
-    incrementBy: 5
-});
+store.dispatch(incrementCount({ incrementBy: 5 }));
 
 // unsubscribe();
-
-store.dispatch({
-    type: 'INCREMENT'
-});
+store.dispatch(incrementCount());
 
 // reset the count
-store.dispatch({
-    type: 'RESET'
-});
+store.dispatch(resetCount());
 
 // Decrement the count
-store.dispatch({
-    type: 'DECREMENT',
-    decrementBy: 10
-});
+store.dispatch(decrementCount({ decrementBy: 10 }));
 
-store.dispatch({
-    type: 'DECREMENT',
-});
+store.dispatch(decrementCount());
 
-store.dispatch({
-    type: 'SET',
-    count: 101
-});
+store.dispatch(setCount({ count: 100 }));
 
 // console.log(store.getState());
-
 // More info on Dispatching Actions: Section 10, Lecture 86.
